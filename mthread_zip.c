@@ -109,7 +109,7 @@ int main(int argc, char *argv[])
   //== To traverse the chunklist example:
   chunk_t *chunk;
   for(chunk = list.first; chunk != NULL; chunk = chunk->next) {
-      //process_chunk(chunk); // <-- do what u want with this chunk
+      // // <-- do what u want with this chunk
   }
   /////////////////////////////////////////////////////////////////
   
