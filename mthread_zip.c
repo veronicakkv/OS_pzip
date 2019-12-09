@@ -1,3 +1,14 @@
+/*NOTE TO STUDENTS: Before you do anything else, please
+ * provide your group information here.
+ *
+ * Group No.: 29 (Join a project group in Canvas)
+ * First member's full name: Weronika Anna Kakavou
+ * First member's email address: awkakavou2-c@my.cityu.edu.hk
+ * Second member's full name: Travis Boyden
+ * Second member's email address: (leave blank if none)
+ * Third member's full name: (leave blank if none)
+ * Third member's email address: (leave blank if none)
+ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
