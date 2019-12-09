@@ -11,6 +11,7 @@
 #include <string.h>
 #include <pthread.h>
 
+#define CHUNK_SIZE 16384
 //== Chunk element for linked list
 typedef struct CHUNK 
 {
@@ -55,22 +56,20 @@ int create_file_chunks(char *filename, int chunksize)
   FILE          *fp;
   char          *buff;
   chunk_t       chunk;
-  struct stat   stat;
+  struct stat   st;
   
   //== Get file info
-  if(stat(filename, &stat) == -1) return(0); 
+  if(stat(filename,&st) == -1) { printf("zip: stat failed\r\n"); return(0); }
   
   //== Open file
   fp = fopen(filename, "rb");
-  if(fp == NULL){
-   printf("pzip: file1 [file2 ...]\n");
-   exit(1);
-   }
+  if(fp == NULL) { printf("zip: open failed\r\n"); return(0); }
     
-  //== Read directly into chunks  
-  for(processed = 0; processed < stat.st_size; processed += actualchunksize) 
+  //== Read directly into chunks
+  int actualchunksize;
+  for(int processed=0; processed < st.st_size; processed += actualchunksize) 
   {
-    int dataremain = (stat.st_size - processed);
+    int dataremain = (st.st_size - processed);
     
     //== Calc chunk size to allow 'irregular' file sizes (not multiples of 'chunksize')
     actualchunksize = dataremain;
@@ -78,15 +77,13 @@ int create_file_chunks(char *filename, int chunksize)
     
     //== Allocate chunk memory & read it from the 
     buff = malloc(actualchunksize);
-    if(buff == NULL) { fclose(fp); return(0); }
+    if(buff == NULL) { fclose(fp); printf("zip: memory allocation failed\r\n"); return(0); }
     
     //== Read one chunk from file and add it to the linked list
-    if(!fread(buff, actualchunksize, 1, fp)) { 
-     fclose(fp);printf("pzip: file1 [file2 ...]\n"); exit(1); }
+    if(!fread(buff, actualchunksize, 1, fp)) { printf("zip: fread failed\r\n"); fclose(fp); return(0); }
     chunk.mem  = buff;
     chunk.size = actualchunksize;
-    if(!add_chunk_to_list(&chunk)) 
-     { fclose(fp); printf("pzip: file1 [file2 ...]\n"); exit(1); }
+    if(!add_chunk_to_list(&chunk)) { fclose(fp); return(0); }
   }
   
   fclose(fp);
@@ -104,7 +101,7 @@ int main(int argc, char *argv[])
   //== Loop load all files to chunks (starting index = 1, to avoid the actual program name)
   for(i=1; i<argc; i++) {
     char *filename = argv[i];
-    if(!create_file_chunks(filename)) { printf("pzip: file1 [file2 ...]\n"); exit(1); }
+    if(!create_file_chunks(filename, CHUNK_SIZE)) { printf("zip: failed processing file [%s]\n", filename); exit(1); }
   }
   
   ///////////////////////////////////////////////////////////////// YOUR CODE HERE TO HANDLE COMPRESSION
